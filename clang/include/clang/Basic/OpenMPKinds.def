@@ -169,6 +169,9 @@
 #define OPENMP_TARGET_TEAMS_DISTRIBUTE_SIMD_CLAUSE(Name)
 #endif
 
+// inc directive
+OPENMP_DIRECTIVE(inc)
+
 // OpenMP directives.
 OPENMP_DIRECTIVE(threadprivate)
 OPENMP_DIRECTIVE(parallel)
