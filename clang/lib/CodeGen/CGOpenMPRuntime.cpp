@@ -551,6 +551,9 @@ enum OpenMPRTLFunction {
   OMPRTL__kmpc_push_num_threads,
   // Call to void __kmpc_flush(ident_t *loc);
   OMPRTL__kmpc_flush,
+//assignment1, CSE504, DebasmitaBasu
+  // Call to void __kmpc_inc(ident_t *loc);
+  OMPRTL__kmpc_inc,
   // Call to kmp_int32 __kmpc_master(ident_t *, kmp_int32 global_tid);
   OMPRTL__kmpc_master,
   // Call to void __kmpc_end_master(ident_t *, kmp_int32 global_tid);
@@ -1205,6 +1208,15 @@ CGOpenMPRuntime::createRuntimeFunction(unsigned Function) {
     llvm::FunctionType *FnTy =
         llvm::FunctionType::get(CGM.VoidTy, TypeParams, /*isVarArg*/ false);
     RTLFn = CGM.CreateRuntimeFunction(FnTy, "__kmpc_flush");
+    break;
+  }
+//assignment1, CSE504, DebasmitaBasu
+  case OMPRTL__kmpc_inc: {
+    // Build void __kmpc_inc(ident_t *loc);
+    llvm::Type *TypeParams[] = {getIdentTyPointerTy()};
+    llvm::FunctionType *FnTy =
+        llvm::FunctionType::get(CGM.VoidTy, TypeParams, /*isVarArg*/ false);
+    RTLFn = CGM.CreateRuntimeFunction(FnTy, "__kmpc_inc");
     break;
   }
   case OMPRTL__kmpc_master: {
@@ -2662,6 +2674,15 @@ void CGOpenMPRuntime::emitFlush(CodeGenFunction &CGF, ArrayRef<const Expr *>,
     return;
   // Build call void __kmpc_flush(ident_t *loc)
   CGF.EmitRuntimeCall(createRuntimeFunction(OMPRTL__kmpc_flush),
+                      emitUpdateLocation(CGF, Loc));
+}
+//assignment1,CSE504, DebasmitaBasu
+void CGOpenMPRuntime::emitInc(CodeGenFunction &CGF, ArrayRef<const Expr *>,
+                                SourceLocation Loc) {
+  if (!CGF.HaveInsertPoint())
+    return;
+  // Build call void __kmpc_inc(ident_t *loc)
+  CGF.EmitRuntimeCall(createRuntimeFunction(OMPRTL__kmpc_inc),
                       emitUpdateLocation(CGF, Loc));
 }
 

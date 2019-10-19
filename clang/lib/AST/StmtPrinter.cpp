@@ -888,6 +888,13 @@ void OMPClausePrinter::VisitOMPFlushClause(OMPFlushClause *Node) {
     OS << ")";
   }
 }
+//assignment1, CSE504, DebasmitaBasu
+void OMPClausePrinter::VisitOMPIncClause(OMPIncClause *Node) {
+  if (!Node->varlist_empty()) {
+    VisitOMPClauseList(Node, '(');
+    OS << ")";
+  }
+}
 
 void OMPClausePrinter::VisitOMPDependClause(OMPDependClause *Node) {
   OS << "depend(";
@@ -1087,6 +1094,12 @@ void StmtPrinter::VisitOMPTaskgroupDirective(OMPTaskgroupDirective *Node) {
 
 void StmtPrinter::VisitOMPFlushDirective(OMPFlushDirective *Node) {
   Indent() << "#pragma omp flush ";
+  PrintOMPExecutableDirective(Node);
+}
+
+//assignment1,CSE504, DebasmitaBasu
+void StmtPrinter::VisitOMPIncDirective(OMPIncDirective *Node) {
+  Indent() << "#pragma omp inc ";
   PrintOMPExecutableDirective(Node);
 }
 

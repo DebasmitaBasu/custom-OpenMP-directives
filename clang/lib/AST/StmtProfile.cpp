@@ -484,6 +484,10 @@ OMPClauseProfiler::VisitOMPCopyprivateClause(const OMPCopyprivateClause *C) {
 void OMPClauseProfiler::VisitOMPFlushClause(const OMPFlushClause *C) {
   VisitOMPClauseList(C);
 }
+//assignment1, CSE504,Debasmita Basu
+void OMPClauseProfiler::VisitOMPIncClause(const OMPIncClause *C) {
+  VisitOMPClauseList(C);
+}
 void OMPClauseProfiler::VisitOMPDependClause(const OMPDependClause *C) {
   VisitOMPClauseList(C);
 }
@@ -623,6 +627,10 @@ void StmtProfiler::VisitOMPTaskgroupDirective(const OMPTaskgroupDirective *S) {
 }
 
 void StmtProfiler::VisitOMPFlushDirective(const OMPFlushDirective *S) {
+  VisitOMPExecutableDirective(S);
+}
+//assignment1, CS504, DebasmitaBasu
+void StmtProfiler::VisitOMPIncDirective(const OMPIncDirective *S) {
   VisitOMPExecutableDirective(S);
 }
 

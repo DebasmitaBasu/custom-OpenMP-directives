@@ -2241,6 +2241,10 @@ enum CXCursorKind {
   /** \brief OpenMP flush directive.
    */
   CXCursor_OMPFlushDirective             = 246,
+//assignment, CSE504, Debasmita Basu
+  /** \brief OpenMP inc directive.
+   */
+  CXCursor_OMPIncDirective             = 280,
 
   /** \brief Windows Structured Exception Handling's leave statement.
    */

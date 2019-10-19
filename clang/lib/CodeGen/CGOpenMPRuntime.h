@@ -802,6 +802,12 @@ public:
   virtual void emitFlush(CodeGenFunction &CGF, ArrayRef<const Expr *> Vars,
                          SourceLocation Loc);
 
+//assignmnet1, CSE504, DebasmitaBasu
+  /// \brief Emit inc of the variables specified in 'omp inc' directive.
+  /// \param Vars List of variables to inc.
+  virtual void emitInc(CodeGenFunction &CGF, ArrayRef<const Expr *> Vars,
+                         SourceLocation Loc);
+
   /// \brief Emit task region for the task directive. The task region is
   /// emitted in several steps:
   /// 1. Emit a call to kmp_task_t *__kmpc_omp_task_alloc(ident_t *, kmp_int32

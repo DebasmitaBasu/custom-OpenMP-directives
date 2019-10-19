@@ -1763,7 +1763,6 @@ public:
     return T->getStmtClass() == OMPTaskgroupDirectiveClass;
   }
 };
-
 /// \brief This represents '#pragma omp flush' directive.
 ///
 /// \code
@@ -1820,6 +1819,65 @@ public:
 
   static bool classof(const Stmt *T) {
     return T->getStmtClass() == OMPFlushDirectiveClass;
+  }
+};
+//assignment1, CSE504, DebasmitaBasu
+/// \brief This represents '#pragma omp inc' directive.
+///
+/// \code
+/// #pragma omp flush(a,b)
+/// \endcode
+/// In this example directive '#pragma omp flush' has 2 arguments- variables 'a'
+/// and 'b'.
+/// 'omp flush' directive does not have clauses but have an optional list of
+/// variables to flush. This list of variables is stored within some fake clause
+/// IncClause.
+class OMPIncDirective : public OMPExecutableDirective {
+  friend class ASTStmtReader;
+  /// \brief Build directive with the given start and end location.
+  ///
+  /// \param StartLoc Starting location of the directive kind.
+  /// \param EndLoc Ending location of the directive.
+  /// \param NumClauses Number of clauses.
+  ///
+  OMPIncDirective(SourceLocation StartLoc, SourceLocation EndLoc,
+                    unsigned NumClauses)
+      : OMPExecutableDirective(this, OMPIncDirectiveClass, OMPD_inc,
+                               StartLoc, EndLoc, NumClauses, 0) {}
+
+  /// \brief Build an empty directive.
+  ///
+  /// \param NumClauses Number of clauses.
+  ///
+  explicit OMPIncDirective(unsigned NumClauses)
+      : OMPExecutableDirective(this, OMPIncDirectiveClass, OMPD_inc,
+                               SourceLocation(), SourceLocation(), NumClauses,
+                               0) {}
+
+public:
+  /// \brief Creates directive with a list of \a Clauses.
+  ///
+  /// \param C AST context.
+  /// \param StartLoc Starting location of the directive kind.
+  /// \param EndLoc Ending Location of the directive.
+  /// \param Clauses List of clauses (only single OMPIncClause clause is
+  /// allowed).
+  ///
+  static OMPIncDirective *Create(const ASTContext &C, SourceLocation StartLoc,
+                                   SourceLocation EndLoc,
+                                   ArrayRef<OMPClause *> Clauses);
+
+  /// \brief Creates an empty directive with the place for \a NumClauses
+  /// clauses.
+  ///
+  /// \param C AST context.
+  /// \param NumClauses Number of clauses.
+  ///
+  static OMPIncDirective *CreateEmpty(const ASTContext &C,
+                                        unsigned NumClauses, EmptyShell);
+
+  static bool classof(const Stmt *T) {
+    return T->getStmtClass() == OMPIncDirectiveClass;
   }
 };
 

@@ -8414,6 +8414,11 @@ public:
   StmtResult ActOnOpenMPFlushDirective(ArrayRef<OMPClause *> Clauses,
                                        SourceLocation StartLoc,
                                        SourceLocation EndLoc);
+//assignment1, CSE504, DebasmitaBasu
+  /// \brief Called on well-formed '\#pragma omp inc'.
+  StmtResult ActOnOpenMPIncDirective(ArrayRef<OMPClause *> Clauses,
+                                       SourceLocation StartLoc,
+                                       SourceLocation EndLoc);
   /// \brief Called on well-formed '\#pragma omp ordered' after parsing of the
   /// associated statement.
   StmtResult ActOnOpenMPOrderedDirective(ArrayRef<OMPClause *> Clauses,
@@ -8775,6 +8780,12 @@ public:
                                           SourceLocation EndLoc);
   /// \brief Called on well-formed 'flush' pseudo clause.
   OMPClause *ActOnOpenMPFlushClause(ArrayRef<Expr *> VarList,
+                                    SourceLocation StartLoc,
+                                    SourceLocation LParenLoc,
+                                    SourceLocation EndLoc);
+//assignment1, CE504,Debasmita Basu
+  /// \brief Called on well-formed 'inc' pseudo clause.
+  OMPClause *ActOnOpenMPIncClause(ArrayRef<Expr *> VarList,
                                     SourceLocation StartLoc,
                                     SourceLocation LParenLoc,
                                     SourceLocation EndLoc);

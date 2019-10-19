@@ -616,6 +616,29 @@ OMPFlushDirective *OMPFlushDirective::CreateEmpty(const ASTContext &C,
   return new (Mem) OMPFlushDirective(NumClauses);
 }
 
+//assignment1, CSE504, DebasmitaBasu
+OMPIncDirective *OMPIncDirective::Create(const ASTContext &C,
+                                             SourceLocation StartLoc,
+                                             SourceLocation EndLoc,
+                                             ArrayRef<OMPClause *> Clauses) {
+  unsigned Size =
+      llvm::alignTo(sizeof(OMPIncDirective), alignof(OMPClause *));
+  void *Mem = C.Allocate(Size + sizeof(OMPClause *) * Clauses.size());
+  OMPIncDirective *Dir =
+      new (Mem) OMPIncDirective(StartLoc, EndLoc, Clauses.size());
+  Dir->setClauses(Clauses);
+  return Dir;
+}
+
+OMPIncDirective *OMPIncDirective::CreateEmpty(const ASTContext &C,
+                                                  unsigned NumClauses,
+                                                  EmptyShell) {
+  unsigned Size =
+      llvm::alignTo(sizeof(OMPIncDirective), alignof(OMPClause *));
+  void *Mem = C.Allocate(Size + sizeof(OMPClause *) * NumClauses);
+  return new (Mem) OMPIncDirective(NumClauses);
+}
+
 OMPOrderedDirective *OMPOrderedDirective::Create(const ASTContext &C,
                                                  SourceLocation StartLoc,
                                                  SourceLocation EndLoc,

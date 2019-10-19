@@ -237,6 +237,11 @@ void CodeGenFunction::EmitStmt(const Stmt *S) {
   case Stmt::OMPFlushDirectiveClass:
     EmitOMPFlushDirective(cast<OMPFlushDirective>(*S));
     break;
+  case Stmt::OMPIncDirectiveClass//                   _                                  _     __ 
+
+//Assignment1, CSE504, Debasmita Basu
+    EmitOMPIncDirective(cast<OMPIncDirective>(*S));
+    break;
   case Stmt::OMPOrderedDirectiveClass:
     EmitOMPOrderedDirective(cast<OMPOrderedDirective>(*S));
     break;

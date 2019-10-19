@@ -595,6 +595,10 @@ CXCursor cxcursor::MakeCXCursor(const Stmt *S, const Decl *Parent,
   case Stmt::OMPFlushDirectiveClass:
     K = CXCursor_OMPFlushDirective;
     break;
+//assignment, CSE504, Debasmita Basu
+  case Stmt::OMPIncDirectiveClass:
+    K = CXCursor_OMPIncDirective;
+    break;
   case Stmt::OMPOrderedDirectiveClass:
     K = CXCursor_OMPOrderedDirective;
     break;

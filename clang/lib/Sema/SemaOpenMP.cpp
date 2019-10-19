@@ -1724,6 +1724,8 @@ void Sema::ActOnOpenMPRegionStart(OpenMPDirectiveKind DKind, Scope *CurScope) {
   case OMPD_cancellation_point:
   case OMPD_cancel:
   case OMPD_flush:
+//assignment1, CSE504, DebasmitaBasu
+  case OMPD_inc:
   case OMPD_target_enter_data:
   case OMPD_target_exit_data:
   case OMPD_declare_reduction:
@@ -2302,6 +2304,12 @@ StmtResult Sema::ActOnOpenMPExecutableDirective(
     assert(AStmt == nullptr &&
            "No associated statement allowed for 'omp flush' directive");
     Res = ActOnOpenMPFlushDirective(ClausesWithImplicit, StartLoc, EndLoc);
+    break;
+//assignment1,CSE504,DebasmitaBasu
+  case OMPD_inc:
+    assert(AStmt == nullptr &&
+           "No associated statement allowed for 'omp inc' directive");
+    Res = ActOnOpenMPIncDirective(ClausesWithImplicit, StartLoc, EndLoc);
     break;
   case OMPD_ordered:
     Res = ActOnOpenMPOrderedDirective(ClausesWithImplicit, AStmt, StartLoc,
@@ -4778,6 +4786,13 @@ StmtResult Sema::ActOnOpenMPFlushDirective(ArrayRef<OMPClause *> Clauses,
   assert(Clauses.size() <= 1 && "Extra clauses in flush directive");
   return OMPFlushDirective::Create(Context, StartLoc, EndLoc, Clauses);
 }
+//assignment1, CSE504, DebasmitaBasu
+StmtResult Sema::ActOnOpenMPIncDirective(ArrayRef<OMPClause *> Clauses,
+                                           SourceLocation StartLoc,
+                                           SourceLocation EndLoc) {
+  assert(Clauses.size() <= 1 && "Extra clauses in inc directive");
+  return OMPIncDirective::Create(Context, StartLoc, EndLoc, Clauses);
+}
 
 StmtResult Sema::ActOnOpenMPOrderedDirective(ArrayRef<OMPClause *> Clauses,
                                              Stmt *AStmt,
@@ -6528,6 +6543,8 @@ OMPClause *Sema::ActOnOpenMPSingleExprClause(OpenMPClauseKind Kind, Expr *Expr,
   case OMPC_mergeable:
   case OMPC_threadprivate:
   case OMPC_flush:
+  //assignment1, CSE504,DebasmitaBasu
+  case OMPC_inc:
   case OMPC_read:
   case OMPC_write:
   case OMPC_update:
@@ -6809,6 +6826,8 @@ OMPClause *Sema::ActOnOpenMPSimpleClause(
   case OMPC_mergeable:
   case OMPC_threadprivate:
   case OMPC_flush:
+  //assignment1, CSE504,DebasmitaBasu
+  case OMPC_inc:
   case OMPC_read:
   case OMPC_write:
   case OMPC_update:
@@ -6966,6 +6985,8 @@ OMPClause *Sema::ActOnOpenMPSingleExprWithArgClause(
   case OMPC_mergeable:
   case OMPC_threadprivate:
   case OMPC_flush:
+//assignment1, CSE504, DebasmitaBasu
+  case OMPC_inc:
   case OMPC_read:
   case OMPC_write:
   case OMPC_update:
@@ -7161,6 +7182,8 @@ OMPClause *Sema::ActOnOpenMPClause(OpenMPClauseKind Kind,
   case OMPC_proc_bind:
   case OMPC_threadprivate:
   case OMPC_flush:
+  //assignment1, CSE504, DebasmitaBasu
+  case OMPC_inc:
   case OMPC_depend:
   case OMPC_device:
   case OMPC_map:
@@ -7281,6 +7304,10 @@ OMPClause *Sema::ActOnOpenMPVarListClause(
     break;
   case OMPC_flush:
     Res = ActOnOpenMPFlushClause(VarList, StartLoc, LParenLoc, EndLoc);
+    break;
+//assignment1, CSE504, DebasmitaBasu
+  case OMPC_inc:
+    Res = ActOnOpenMPIncClause(VarList, StartLoc, LParenLoc, EndLoc);
     break;
   case OMPC_depend:
     Res = ActOnOpenMPDependClause(DepKind, DepLinMapLoc, ColonLoc, VarList,
@@ -9361,6 +9388,16 @@ OMPClause *Sema::ActOnOpenMPFlushClause(ArrayRef<Expr *> VarList,
     return nullptr;
 
   return OMPFlushClause::Create(Context, StartLoc, LParenLoc, EndLoc, VarList);
+}
+//assignment1, CSE504, DebasmitaBasu
+OMPClause *Sema::ActOnOpenMPIncClause(ArrayRef<Expr *> VarList,
+                                        SourceLocation StartLoc,
+                                        SourceLocation LParenLoc,
+                                        SourceLocation EndLoc) {
+  if (VarList.empty())
+    return nullptr;
+
+  return OMPIncClause::Create(Context, StartLoc, LParenLoc, EndLoc, VarList);
 }
 
 OMPClause *

@@ -1844,6 +1844,10 @@ OMPClause *OMPClauseReader::readClause() {
   case OMPC_flush:
     C = OMPFlushClause::CreateEmpty(Context, Reader->Record.readInt());
     break;
+//Assignment1, CSE504, Debasmita Basu
+  case OMPC_inc:
+    C = OMPIncClause::CreateEmpty(Context, Reader->Record.readInt());
+    break;
   case OMPC_depend:
     C = OMPDependClause::CreateEmpty(Context, Reader->Record.readInt());
     break;
@@ -2219,6 +2223,17 @@ void OMPClauseReader::VisitOMPCopyprivateClause(OMPCopyprivateClause *C) {
 }
 
 void OMPClauseReader::VisitOMPFlushClause(OMPFlushClause *C) {
+  C->setLParenLoc(Reader->ReadSourceLocation());
+  unsigned NumVars = C->varlist_size();
+  SmallVector<Expr *, 16> Vars;
+  Vars.reserve(NumVars);
+  for (unsigned i = 0; i != NumVars; ++i)
+    Vars.push_back(Reader->Record.readSubExpr());
+  C->setVarRefs(Vars);
+}
+
+//Assignment1, CSE504, Debasmita Basu
+void OMPClauseReader::VisitOMPIncClause(OMPIncClause *C) {
   C->setLParenLoc(Reader->ReadSourceLocation());
   unsigned NumVars = C->varlist_size();
   SmallVector<Expr *, 16> Vars;
@@ -2694,6 +2709,22 @@ void ASTStmtReader::VisitOMPTaskgroupDirective(OMPTaskgroupDirective *D) {
 }
 
 void ASTStmtReader::VisitOMPFlushDirective(OMPFlushDirective *D) {
+  VisitStmt(D);
+  // The NumClauses field was read in ReadStmtFromStream.
+  Record.skipInts(1);
+  VisitOMPExecutableDirective(D);
+}
+
+//                   _                                  _     __ 
+//     /\           (_)                                | |   /_ |
+//    /  \   ___ ___ _  __ _ _ __  _ __ ___   ___ _ __ | |_   | |
+//   / /\ \ / __/ __| |/ _` | '_ \| '_ ` _ \ / _ \ '_ \| __|  | |
+//  / ____ \\__ \__ \ | (_| | | | | | | | | |  __/ | | | |_   | |
+// /_/    \_\___/___/_|\__, |_| |_|_| |_| |_|\___|_| |_|\__|  |_|
+//                      __/ |                                    
+//                     |___/                                     
+// assignment 1 addition
+void ASTStmtReader::VisitOMPIncDirective(OMPIncDirective *D) {
   VisitStmt(D);
   // The NumClauses field was read in ReadStmtFromStream.
   Record.skipInts(1);
@@ -3464,6 +3495,20 @@ Stmt *ASTReader::ReadStmtFromStream(ModuleFile &F) {
 
     case STMT_OMP_FLUSH_DIRECTIVE:
       S = OMPFlushDirective::CreateEmpty(
+          Context, Record[ASTStmtReader::NumStmtFields], Empty);
+      break;
+
+//                   _                                  _     __ 
+//     /\           (_)                                | |   /_ |
+//    /  \   ___ ___ _  __ _ _ __  _ __ ___   ___ _ __ | |_   | |
+//   / /\ \ / __/ __| |/ _` | '_ \| '_ ` _ \ / _ \ '_ \| __|  | |
+//  / ____ \\__ \__ \ | (_| | | | | | | | | |  __/ | | | |_   | |
+// /_/    \_\___/___/_|\__, |_| |_|_| |_| |_|\___|_| |_|\__|  |_|
+//                      __/ |                                    
+//                     |___/                                     
+// assignment 1 addition
+    case STMT_OMP_INC_DIRECTIVE:
+      S = OMPIncDirective::CreateEmpty(
           Context, Record[ASTStmtReader::NumStmtFields], Empty);
       break;
 

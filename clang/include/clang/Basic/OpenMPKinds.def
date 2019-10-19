@@ -185,11 +185,15 @@ OPENMP_DIRECTIVE(barrier)
 OPENMP_DIRECTIVE(taskwait)
 OPENMP_DIRECTIVE(taskgroup)
 OPENMP_DIRECTIVE(flush)
+
+//Assignment1, CSE504, Debasmita Basu
+OPENMP_DIRECTIVE(inc)
 OPENMP_DIRECTIVE(ordered)
 OPENMP_DIRECTIVE(atomic)
 OPENMP_DIRECTIVE(target)
 OPENMP_DIRECTIVE(teams)
 OPENMP_DIRECTIVE(cancel)
+
 OPENMP_DIRECTIVE_EXT(target_data, "target data")
 OPENMP_DIRECTIVE_EXT(target_enter_data, "target enter data")
 OPENMP_DIRECTIVE_EXT(target_exit_data, "target exit data")
@@ -223,7 +227,7 @@ OPENMP_DIRECTIVE_EXT(target_teams_distribute_parallel_for, "target teams distrib
 OPENMP_DIRECTIVE_EXT(target_teams_distribute_parallel_for_simd, "target teams distribute parallel for simd")
 OPENMP_DIRECTIVE_EXT(target_teams_distribute_simd, "target teams distribute simd")
 
-// OpenMP clauses.
+
 OPENMP_CLAUSE(if, OMPIfClause)
 OPENMP_CLAUSE(final, OMPFinalClause)
 OPENMP_CLAUSE(num_threads, OMPNumThreadsClause)
@@ -247,6 +251,10 @@ OPENMP_CLAUSE(nowait, OMPNowaitClause)
 OPENMP_CLAUSE(untied, OMPUntiedClause)
 OPENMP_CLAUSE(mergeable, OMPMergeableClause)
 OPENMP_CLAUSE(flush, OMPFlushClause)
+//Assignment1, CSE504, Debasmita Basu
+
+OPENMP_CLAUSE(inc, OMPIncClause)
+
 OPENMP_CLAUSE(read, OMPReadClause)
 OPENMP_CLAUSE(write, OMPWriteClause)
 OPENMP_CLAUSE(update, OMPUpdateClause)

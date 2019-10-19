@@ -1235,6 +1235,12 @@ CursorKind.OMP_TARGET_SIMD_DIRECTIVE = CursorKind(270)
 # OpenMP teams distribute directive.
 CursorKind.OMP_TEAMS_DISTRIBUTE_DIRECTIVE = CursorKind(271)
 
+# OpenMP inc directive.
+CursorKind.OMP_INC_DIRECTIVE = CursorKind(272)
+
+
+
+
 ###
 # Other Kinds
 

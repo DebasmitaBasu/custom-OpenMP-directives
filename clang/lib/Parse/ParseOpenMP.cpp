@@ -722,6 +722,8 @@ Parser::DeclGroupPtrTy Parser::ParseOpenMPDeclarativeDirectiveWithExtDecl(
   case OMPD_taskwait:
   case OMPD_taskgroup:
   case OMPD_flush:
+//assignment1, CSE504, Debasmita Basu
+  case OMPD_inc:
   case OMPD_for:
   case OMPD_for_simd:
   case OMPD_sections:
@@ -822,6 +824,8 @@ StmtResult Parser::ParseOpenMPDeclarativeOrExecutableDirective(
   StmtResult Directive = StmtError();
   bool HasAssociatedStatement = true;
   bool FlushHasClause = false;
+//assignment, CSE504, Debasmita Basu
+  bool IncHasClause = false;
 
   switch (DKind) {
   case OMPD_threadprivate: {
@@ -862,8 +866,21 @@ StmtResult Parser::ParseOpenMPDeclarativeOrExecutableDirective(
     } else
       SkipUntil(tok::annot_pragma_openmp_end);
     break;
-  case OMPD_flush:
+  
+//assignment, CSE504, Debasmita Basu
+  case OMPD_inc:
     if (PP.LookAhead(0).is(tok::l_paren)) {
+      IncHasClause = true;
+      // Push copy of the current token back to stream to properly parse
+      // pseudo-clause OMPIncClause.
+      PP.EnterToken(Tok);
+    }
+    else {
+      Diag(Tok, diag::err_expected_lparen_after)
+          << getOpenMPDirectiveName(DKind) << 0;
+   }
+   case OMPD_flush:
+    if (PP.LookAhead(0).is(tok::l_paren && !IncHasClause)) {
       FlushHasClause = true;
       // Push copy of the current token back to stream to properly parse
       // pseudo-clause OMPFlushClause.
@@ -950,13 +967,19 @@ StmtResult Parser::ParseOpenMPDeclarativeOrExecutableDirective(
     Actions.StartOpenMPDSABlock(DKind, DirName, Actions.getCurScope(), Loc);
 
     while (Tok.isNot(tok::annot_pragma_openmp_end)) {
+//assignment, CSE504, Debasmita Basu
       OpenMPClauseKind CKind =
           Tok.isAnnotation()
               ? OMPC_unknown
               : FlushHasClause ? OMPC_flush
-                               : getOpenMPClauseKind(PP.getSpelling(Tok));
+                               : IncHasClause ? OMPC_inc
+                               		      : getOpenMPClauseKind(PP.getSpelling(Tok));
       Actions.StartOpenMPClause(CKind);
-      FlushHasClause = false;
+      if(FlushHasClause) FlushHasClause = false;
+      else if(IncHasClause) IncHasClause = false;
+
+      //FlushHasClause = false;
+      //IncHasClause = false;
       OMPClause *Clause =
           ParseOpenMPClause(DKind, CKind, !FirstClauses[CKind].getInt());
       FirstClauses[CKind].setInt(true);
@@ -1221,6 +1244,8 @@ OMPClause *Parser::ParseOpenMPClause(OpenMPDirectiveKind DKind,
   case OMPC_copyin:
   case OMPC_copyprivate:
   case OMPC_flush:
+  //assignment1, CSE504, Debasmita Basu
+  case OMPC_inc:
   case OMPC_depend:
   case OMPC_map:
   case OMPC_to:
@@ -1543,8 +1568,8 @@ static bool ParseReductionId(Parser &P, CXXScopeSpec &ReductionIdScopeSpec,
       OOK = OO_AmpAmp;
       break;
     case tok::pipepipe:
-      OOK = OO_PipePipe;
       break;
+      OOK = OO_PipePipe;
     default:
       break;
     }
@@ -1725,16 +1750,32 @@ bool Parser::ParseOpenMPVarList(OpenMPDirectiveKind DKind,
                 StopBeforeMatch);
     }
     // Skip ',' if any
+    //assignment1, CSE504, assignment1
     IsComma = Tok.is(tok::comma);
     if (IsComma)
       ConsumeToken();
     else if (Tok.isNot(tok::r_paren) &&
              Tok.isNot(tok::annot_pragma_openmp_end) &&
              (!MayHaveTail || Tok.isNot(tok::colon)))
-      Diag(Tok, diag::err_omp_expected_punc)
-          << ((Kind == OMPC_flush) ? getOpenMPDirectiveName(OMPD_flush)
-                                   : getOpenMPClauseName(Kind))
+      // Diag(Tok, diag::err_omp_expected_punc)
+      //     << ((Kind == OMPC_flush) ? getOpenMPDirectiveName(OMPD_flush)
+      //                              : getOpenMPClauseName(Kind))
+      //     << (Kind == OMPC_flush);
+      if(Kind == OMPC_flush) {
+        Diag(Tok, diag::err_omp_expected_punc)
+          << getOpenMPDirectiveName(OMPD_flush)
           << (Kind == OMPC_flush);
+      }
+      else if(Kind == OMPC_inc) {
+          Diag(Tok, diag::err_omp_expected_punc)
+          << getOpenMPDirectiveName(OMPD_inc)
+          << (Kind == OMPC_inc);
+      }
+      else {
+        Diag(Tok, diag::err_omp_expected_punc)
+          << getOpenMPClauseName(Kind)
+          << false;
+        }
   }
 
   // Parse ')' for linear clause with modifier.

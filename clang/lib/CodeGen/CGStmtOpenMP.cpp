@@ -2763,6 +2763,17 @@ void CodeGenFunction::EmitOMPFlushDirective(const OMPFlushDirective &S) {
   }(), S.getLocStart());
 }
 
+//Assignment1, CSE504, Debasmita Basu
+void CodeGenFunction::EmitOMPIncDirective(const OMPIncDirective &S) {
+  CGM.getOpenMPRuntime().emitInc(*this, [&]() -> ArrayRef<const Expr *> {
+    if (const auto *IncClause = S.getSingleClause<OMPIncClause>()) {
+      return llvm::makeArrayRef(IncClause->varlist_begin(),
+                                IncClause->varlist_end());
+    }
+    return llvm::None;
+  }(), S.getLocStart());
+}
+
 void CodeGenFunction::EmitOMPDistributeLoop(const OMPDistributeDirective &S) {
   // Emit the loop iteration variable.
   auto IVExpr = cast<DeclRefExpr>(S.getIterationVariable());
@@ -3010,6 +3021,16 @@ void CodeGenFunction::emitOMPSimpleStore(LValue LVal, RValue RVal,
   }
 }
 
+//assignment, CSE504, Debasmita Basu
+const auto *IncClause = S.getSingleClause<OMPIncClause>();
+  auto Vars = llvm::makeArrayRef(IncClause->varlist_begin(),
+                                IncClause->varlist_end());
+
+for(auto v:Vars) {
+    auto *OrigVD = cast<VarDecl>(cast<DeclRefExpr>(*v).getDecl());
+    CGM.getOpenMPRuntime().emitInc(*this, OrigVD, S.getLocStart());
+  }
+
 static void EmitOMPAtomicReadExpr(CodeGenFunction &CGF, bool IsSeqCst,
                                   const Expr *X, const Expr *V,
                                   SourceLocation Loc) {
@@ -3033,6 +3054,8 @@ static void EmitOMPAtomicReadExpr(CodeGenFunction &CGF, bool IsSeqCst,
     CGF.CGM.getOpenMPRuntime().emitFlush(CGF, llvm::None, Loc);
   CGF.emitOMPSimpleStore(VLValue, Res, X->getType().getNonReferenceType(), Loc);
 }
+
+
 
 static void EmitOMPAtomicWriteExpr(CodeGenFunction &CGF, bool IsSeqCst,
                                    const Expr *X, const Expr *E,
@@ -3338,6 +3361,8 @@ static void EmitOMPAtomicExpr(CodeGenFunction &CGF, OpenMPClauseKind Kind,
   case OMPC_copyin:
   case OMPC_copyprivate:
   case OMPC_flush:
+//Assignment1, CSE504, Debasmita Basu
+  case OMPC_inc:
   case OMPC_proc_bind:
   case OMPC_schedule:
   case OMPC_ordered:

@@ -1648,6 +1648,18 @@ public:
     return getSema().ActOnOpenMPFlushClause(VarList, StartLoc, LParenLoc,
                                             EndLoc);
   }
+//assignment1, CSE504, Debasmita Basu
+  /// \brief Build a new OpenMP 'inc' pseudo clause.
+  ///
+  /// By default, performs semantic analysis to build the new OpenMP clause.
+  /// Subclasses may override this routine to provide different behavior.
+  OMPClause *RebuildOMPIncClause(ArrayRef<Expr *> VarList,
+                                   SourceLocation StartLoc,
+                                   SourceLocation LParenLoc,
+                                   SourceLocation EndLoc) {
+    return getSema().ActOnOpenMPIncClause(VarList, StartLoc, LParenLoc,
+                                            EndLoc);
+  }
 
   /// \brief Build a new OpenMP 'depend' pseudo clause.
   ///
@@ -7467,6 +7479,18 @@ TreeTransform<Derived>::TransformOMPFlushDirective(OMPFlushDirective *D) {
   return Res;
 }
 
+//assignment1, CSE504, Debasmita Basu
+template <typename Derived>
+StmtResult
+TreeTransform<Derived>::TransformOMPIncDirective(OMPIncDirective *D) {
+  DeclarationNameInfo DirName;
+  getDerived().getSema().StartOpenMPDSABlock(OMPD_inc, DirName, nullptr,
+                                             D->getLocStart());
+  StmtResult Res = getDerived().TransformOMPExecutableDirective(D);
+  getDerived().getSema().EndOpenMPDSABlock(Res.get());
+  return Res;
+}
+
 template <typename Derived>
 StmtResult
 TreeTransform<Derived>::TransformOMPOrderedDirective(OMPOrderedDirective *D) {
@@ -8158,6 +8182,20 @@ OMPClause *TreeTransform<Derived>::TransformOMPFlushClause(OMPFlushClause *C) {
     Vars.push_back(EVar.get());
   }
   return getDerived().RebuildOMPFlushClause(Vars, C->getLocStart(),
+                                            C->getLParenLoc(), C->getLocEnd());
+}
+//assignment1, CSE504, DebasmitaBasu
+template <typename Derived>
+OMPClause *TreeTransform<Derived>::TransformOMPIncClause(OMPIncClause *C) {
+  llvm::SmallVector<Expr *, 16> Vars;
+  Vars.reserve(C->varlist_size());
+  for (auto *VE : C->varlists()) {
+    ExprResult EVar = getDerived().TransformExpr(cast<Expr>(VE));
+    if (EVar.isInvalid())
+      return nullptr;
+    Vars.push_back(EVar.get());
+  }
+  return getDerived().RebuildOMPIncClause(Vars, C->getLocStart(),
                                             C->getLParenLoc(), C->getLocEnd());
 }
 

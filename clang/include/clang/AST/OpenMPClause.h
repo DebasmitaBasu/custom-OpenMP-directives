@@ -2566,6 +2566,74 @@ public:
   }
 };
 
+//assignment, CSE504, Debasmita Basu
+/// \brief This represents implicit clause 'inc' for the '#pragma omp inc'
+/// directive.
+/// This clause does not exist by itself, it can be only as a part of 'omp
+/// inc' directive. This clause is introduced to keep the original structure
+/// of \a OMPExecutableDirective class and its derivatives and to use the
+/// existing infrastructure of clauses with the list of variables.
+///
+/// \code
+/// #pragma omp inc(a)
+/// \endcode
+/// In this example directive '#pragma omp inc' has implicit clause 'inc'
+/// with the variable 'a'.
+///
+class OMPIncClause final
+    : public OMPVarListClause<OMPIncClause>,
+      private llvm::TrailingObjects<OMPIncClause, Expr *> {
+  friend TrailingObjects;
+  friend OMPVarListClause;
+  /// \brief Build clause with number of variables \a N.
+  ///
+  /// \param StartLoc Starting location of the clause.
+  /// \param LParenLoc Location of '('.
+  /// \param EndLoc Ending location of the clause.
+  /// \param N Number of the variables in the clause.
+  ///
+  OMPIncClause(SourceLocation StartLoc, SourceLocation LParenLoc,
+                 SourceLocation EndLoc, unsigned N)
+      : OMPVarListClause<OMPIncClause>(OMPC_inc, StartLoc, LParenLoc,
+                                         EndLoc, N) {}
+
+  /// \brief Build an empty clause.
+  ///
+  /// \param N Number of variables.
+  ///
+  explicit OMPIncClause(unsigned N)
+      : OMPVarListClause<OMPIncClause>(OMPC_inc, SourceLocation(),
+                                         SourceLocation(), SourceLocation(),
+                                         N) {}
+
+public:
+  /// \brief Creates clause with a list of variables \a VL.
+  ///
+  /// \param C AST context.
+  /// \param StartLoc Starting location of the clause.
+  /// \param LParenLoc Location of '('.
+  /// \param EndLoc Ending location of the clause.
+  /// \param VL List of references to the variables.
+  ///
+  static OMPIncClause *Create(const ASTContext &C, SourceLocation StartLoc,
+                                SourceLocation LParenLoc, SourceLocation EndLoc,
+                                ArrayRef<Expr *> VL);
+  /// \brief Creates an empty clause with \a N variables.
+  ///
+  /// \param C AST context.
+  /// \param N The number of variables.
+  ///
+  static OMPIncClause *CreateEmpty(const ASTContext &C, unsigned N);
+
+  child_range children() {
+    return child_range(reinterpret_cast<Stmt **>(varlist_begin()),
+                       reinterpret_cast<Stmt **>(varlist_end()));
+  }
+
+  static bool classof(const OMPClause *T) {
+    return T->getClauseKind() == OMPC_inc;
+  }
+};
 /// \brief This represents implicit clause 'depend' for the '#pragma omp task'
 /// directive.
 ///
